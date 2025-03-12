@@ -18,7 +18,7 @@ fun GetStartedScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.Center,
     ) {
-        Text(text = "Welcome to E-Learn!", style = MaterialTheme.typography.headlineMedium)
+        Text(text = "Welcome to E-Learn! Get Started", style = MaterialTheme.typography.headlineMedium)
 
         Spacer(modifier = Modifier.height(24.dp))
 

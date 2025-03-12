@@ -10,10 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.*
 import androidx.navigation.compose.composable
-import androidx.credentials.CredentialManager
-import androidx.credentials.CustomCredential
-import androidx.credentials.GetCredentialRequest
-import androidx.credentials.GetCredentialResponse
+import androidx.credentials.*
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.navigation.NavHostController
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
@@ -24,6 +21,7 @@ import com.nextlevelprogrammers.elearns.data.remote.ApiService
 import com.nextlevelprogrammers.elearns.model.AuthRequest
 import com.nextlevelprogrammers.elearns.ui.design.GetStartedScreen
 import com.nextlevelprogrammers.elearns.ui.design.MainScreen
+import com.nextlevelprogrammers.elearns.ui.design.SubjectScreen
 import com.nextlevelprogrammers.elearns.ui.theme.ELearnTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -46,8 +44,12 @@ class MainActivity : ComponentActivity() {
             ELearnTheme {
                 val navController = rememberNavController()
 
-                val isAuthenticated by remember {
-                    mutableStateOf(auth.currentUser != null)
+                // 🔥 Make isAuthenticated reactive
+                var isAuthenticated by remember { mutableStateOf(auth.currentUser != null) }
+
+                // 🔥 Ensure real-time auth state changes trigger navigation
+                LaunchedEffect(auth) {
+                    isAuthenticated = auth.currentUser != null
                 }
 
                 val startDestination = if (isAuthenticated) {
@@ -60,13 +62,15 @@ class MainActivity : ComponentActivity() {
                     composable(Routes.GET_STARTED) {
                         GetStartedScreen(
                             navController = navController,
-                            onGoogleSignInClick = { signInWithGoogle(navController, clientId) } // ✅ Pass function
+                            onGoogleSignInClick = { signInWithGoogle(navController, clientId) }
                         )
                     }
                     composable(Routes.MAIN_SCREEN) {
-                        MainScreen(
-                            navController = navController,
-                        )
+                        MainScreen(navController = navController)
+                    }
+                    composable("subject_screen/{categoryName}") { backStackEntry ->
+                        val categoryName = backStackEntry.arguments?.getString("categoryName") ?: "Unknown"
+                        SubjectScreen(navController, categoryName)
                     }
                 }
             }
@@ -77,7 +81,7 @@ class MainActivity : ComponentActivity() {
     private fun signInWithGoogle(navController: NavHostController, clientId: String) {
         val googleIdTokenRequest = GetGoogleIdOption.Builder()
             .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(baseContext.getString(R.string.client_id))
+            .setServerClientId(clientId)
             .setAutoSelectEnabled(true)
             .build()
 
@@ -96,7 +100,7 @@ class MainActivity : ComponentActivity() {
     }
 
     /** 🔥 Handle Sign-In Result */
-    private fun handleSignInResult(result: GetCredentialResponse, navController: androidx.navigation.NavHostController) {
+    private fun handleSignInResult(result: GetCredentialResponse, navController: NavHostController) {
         val credential = result.credential
 
         if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
@@ -108,7 +112,7 @@ class MainActivity : ComponentActivity() {
     }
 
     /** 🔥 Authenticate with Firebase using Google ID Token */
-    private fun firebaseAuthWithGoogle(idToken: String, navController: androidx.navigation.NavHostController) {
+    private fun firebaseAuthWithGoogle(idToken: String, navController: NavHostController) {
         val firebaseCredential = GoogleAuthProvider.getCredential(idToken, null)
         auth.signInWithCredential(firebaseCredential)
             .addOnCompleteListener { task ->
@@ -118,12 +122,14 @@ class MainActivity : ComponentActivity() {
                     Log.d(TAG, "✅ Firebase UID: $firebaseUid")
 
                     sendUIDToBackend(firebaseUid, {
-                        navController.navigate(Routes.MAIN_SCREEN) {
-                            popUpTo(Routes.GET_STARTED) { inclusive = true }
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            navController.navigate(Routes.MAIN_SCREEN) {
+                                popUpTo(Routes.GET_STARTED) { inclusive = true }
+                            }
                         }
                     }, {
                         Log.e(TAG, "❌ Backend authentication failed.")
-                    })
+                    }, navController)
                 } else {
                     Log.e(TAG, "❌ Firebase authentication failed: ${task.exception?.localizedMessage}")
                 }
@@ -146,15 +152,19 @@ class MainActivity : ComponentActivity() {
 
                 val response = ApiService().authenticateUser(authRequest)
 
-                if (response.success || response.message?.contains("successfully", ignoreCase = true) == true) {
-                    Log.d(com.nextlevelprogrammers.elearns.MainActivity.Companion.TAG, "✅ User authenticated successfully! User ID: ${response.uid}")
+                if (response.success || response.message?.contains("successfully", ignoreCase = true) == true || response.message?.contains("209") == true) {
+                    Log.d(TAG, "✅ User authenticated successfully or already exists!")
+
                     withContext(Dispatchers.Main) {
-                        navController.navigate("MainScreen") {
-                            popUpTo("GetStarted") { inclusive = true }
+                        navController.navigate(Routes.MAIN_SCREEN) {
+                            popUpTo(Routes.GET_STARTED) { inclusive = true }
                         }
                     }
                 } else {
-                    Log.e(com.nextlevelprogrammers.elearns.MainActivity.Companion.TAG, "❌ Authentication failed: ${response.message}")
+                    Log.e(TAG, "❌ Authentication failed: ${response.message}")
+                    withContext(Dispatchers.Main) {
+                        onError(response.message ?: "Authentication failed")
+                    }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
@@ -166,10 +176,12 @@ class MainActivity : ComponentActivity() {
     }
 
     /** 🔥 Sign Out */
-    private fun signOut(navController: androidx.navigation.NavHostController) {
+    private fun signOut(navController: NavHostController) {
         auth.signOut()
-        navController.navigate(Routes.GET_STARTED) {
-            popUpTo(Routes.MAIN_SCREEN) { inclusive = true }
+        lifecycleScope.launch(Dispatchers.Main) {
+            navController.navigate(Routes.GET_STARTED) {
+                popUpTo(Routes.MAIN_SCREEN) { inclusive = true }
+            }
         }
     }
 
