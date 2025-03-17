@@ -67,7 +67,7 @@ fun ContentScreen(navController: NavController, contentList: List<ContentItem>) 
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(filteredContent) { content ->
-                        ContentItemView(navController, content)
+                        ContentItemView(navController, content, contentList)
                     }
                 }
             }
@@ -76,22 +76,24 @@ fun ContentScreen(navController: NavController, contentList: List<ContentItem>) 
 }
 
 @Composable
-fun ContentItemView(navController: NavController, content: ContentItem) {
+fun ContentItemView(navController: NavController, content: ContentItem, contentList: List<ContentItem>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
                 if (content.content_type.lowercase() == "video") {
+                    val videoList = contentList.filter { it.content_type.lowercase() == "video" }
                     navController.currentBackStackEntry?.savedStateHandle?.apply {
                         set("fullHdUrl", content.full_hd_video_uri ?: "")
                         set("hdUrl", content.hd_video_uri ?: "")
                         set("sdUrl", content.sd_video_uri ?: "")
+                        set("nextVideos", videoList)
                     }
                     navController.navigate("videoPlayerScreen")
                 } else if (content.content_type.lowercase() == "pdf") {
-                    navController.currentBackStackEntry?.savedStateHandle?.set("pdfUrl", content.pdf_uri)
-                    navController.navigate("pdfViewerScreen")
+                    val encodedPdfUrl = URLEncoder.encode(content.pdf_uri ?: "", StandardCharsets.UTF_8.toString())
+                    navController.navigate("pdfViewerScreen/$encodedPdfUrl")
                 }
             }
     ) {

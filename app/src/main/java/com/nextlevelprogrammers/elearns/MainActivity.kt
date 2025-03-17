@@ -24,6 +24,7 @@ import com.nextlevelprogrammers.elearns.data.repository.ContentRepository
 import com.nextlevelprogrammers.elearns.data.repository.CourseRepository
 import com.nextlevelprogrammers.elearns.data.repository.SectionRepository
 import com.nextlevelprogrammers.elearns.model.AuthRequest
+import com.nextlevelprogrammers.elearns.model.ContentItem
 import com.nextlevelprogrammers.elearns.model.CourseSection
 import com.nextlevelprogrammers.elearns.ui.design.ContentScreen
 import com.nextlevelprogrammers.elearns.ui.design.GetStartedScreen
@@ -130,6 +131,9 @@ class MainActivity : ComponentActivity() {
                         val hdUrl = navController.previousBackStackEntry?.savedStateHandle?.get<String>("hdUrl") ?: ""
                         val sdUrl = navController.previousBackStackEntry?.savedStateHandle?.get<String>("sdUrl") ?: ""
 
+                        val nextVideos = navController.previousBackStackEntry
+                            ?.savedStateHandle?.get<List<ContentItem>>("nextVideos") ?: emptyList()
+
                         Log.d("VideoPlayerScreen", "Received FullHD=$fullHdUrl HD=$hdUrl SD=$sdUrl")
 
                         VideoPlayerScreen(
@@ -138,7 +142,19 @@ class MainActivity : ComponentActivity() {
                                 "HD" to hdUrl,
                                 "SD" to sdUrl
                             ),
-                            nextVideos = List {  }
+                            nextVideos = nextVideos.map { it.content_name }, // or title
+                            onVideoSelected = { selectedVideoTitle ->
+                                val selectedContent = nextVideos.find { it.content_name == selectedVideoTitle }
+                                selectedContent?.let {
+                                    navController.currentBackStackEntry?.savedStateHandle?.apply {
+                                        set("fullHdUrl", it.full_hd_video_uri ?: "")
+                                        set("hdUrl", it.hd_video_uri ?: "")
+                                        set("sdUrl", it.sd_video_uri ?: "")
+                                        set("nextVideos", nextVideos) // pass again for continuity
+                                    }
+                                    navController.navigate("videoPlayerScreen")
+                                }
+                            }
                         )
                     }
                     composable("pdfViewerScreen/{pdfUrl}") { backStackEntry ->

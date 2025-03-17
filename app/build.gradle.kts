@@ -112,4 +112,6 @@ dependencies {
     implementation ("androidx.media3:media3-ui:1.3.1")
     implementation ("androidx.media3:media3-exoplayer-dash:1.3.1")
     implementation ("androidx.compose.runtime:runtime-livedata:1.5.4")
+
+    implementation ("io.github.grizzi91:bouquet:1.1.2")
 }

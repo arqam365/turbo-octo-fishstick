@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,9 +30,11 @@ import androidx.media3.common.util.UnstableApi
 @Composable
 fun VideoPlayerScreen(
     videoQualities: Map<String, String>, // Keys: "Full HD", "HD", "SD"
-    nextVideos: List<String>
+    nextVideos: List<String>, // List of next video titles
+    onVideoSelected: (String) -> Unit // Callback when a video is selected
 ) {
     val context = LocalContext.current
+    var currentVideoTitle by remember { mutableStateOf(nextVideos.firstOrNull() ?: "") }
     var currentQuality by remember { mutableStateOf("Full HD") }
     var isFullScreen by remember { mutableStateOf(false) }
     var dropdownExpanded by remember { mutableStateOf(false) }
@@ -62,6 +65,26 @@ fun VideoPlayerScreen(
         }
 
         onDispose { }
+    }
+
+    DisposableEffect(exoPlayer) {
+        val listener = object : androidx.media3.common.Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == androidx.media3.common.Player.STATE_ENDED) {
+                    // Autoplay next video
+                    val currentIndex = nextVideos.indexOfFirst { it == currentVideoTitle } // Keep track of current video title
+                    if (currentIndex != -1 && currentIndex + 1 < nextVideos.size) {
+                        onVideoSelected(nextVideos[currentIndex + 1])
+                    }
+                }
+            }
+        }
+        exoPlayer.addListener(listener)
+
+        onDispose {
+            exoPlayer.removeListener(listener)
+            exoPlayer.release()
+        }
     }
 
     // Release when exiting screen
@@ -166,6 +189,26 @@ fun VideoPlayerScreen(
                                 }
                             )
                         }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = "Up Next:",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(start = 16.dp, top = 8.dp)
+                )
+                LazyColumn {
+                    items(nextVideos) { videoTitle ->
+                        Text(
+                            text = videoTitle,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onVideoSelected(videoTitle) }
+                                .padding(16.dp)
+                        )
+                        HorizontalDivider()
                     }
                 }
             }
