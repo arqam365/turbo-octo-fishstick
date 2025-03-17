@@ -125,6 +125,7 @@ fun LearningCategories(navController: NavController, viewModel: CategoryViewMode
                 i.forEachIndexed { index, category ->
                     CategoryCard(
                         title = category.category_name,
+                        categoryId = category.category_id,
                         color = getRandomCategoryColor(),
                         modifier = Modifier.weight(1f),
                         navController = navController // ✅ Pass the navigation controller
@@ -155,14 +156,14 @@ fun getRandomCategoryColor(): Color {
 
 // 🔹 Single Category Card
 @Composable
-fun CategoryCard(title: String, color: Color, modifier: Modifier, navController: NavController) {
+fun CategoryCard(title: String, categoryId: String, color: Color, modifier: Modifier, navController: NavController) {
     Box(
         modifier = modifier
             .height(100.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(color)
             .clickable {
-                navController.navigate("subject_screen/$title")
+                navController.navigate("subject_screen/$categoryId")
             }
             .padding(16.dp),
         contentAlignment = Alignment.Center

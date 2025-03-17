@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.*
@@ -13,19 +14,32 @@ import androidx.navigation.compose.composable
 import androidx.credentials.*
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.navigation.NavHostController
+import androidx.navigation.navArgument
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.nextlevelprogrammers.elearns.data.remote.ApiService
+import com.nextlevelprogrammers.elearns.data.repository.ContentRepository
+import com.nextlevelprogrammers.elearns.data.repository.CourseRepository
+import com.nextlevelprogrammers.elearns.data.repository.SectionRepository
 import com.nextlevelprogrammers.elearns.model.AuthRequest
+import com.nextlevelprogrammers.elearns.model.CourseSection
+import com.nextlevelprogrammers.elearns.ui.design.ContentScreen
 import com.nextlevelprogrammers.elearns.ui.design.GetStartedScreen
 import com.nextlevelprogrammers.elearns.ui.design.MainScreen
+import com.nextlevelprogrammers.elearns.ui.design.PdfViewerScreen
+import com.nextlevelprogrammers.elearns.ui.design.SectionScreen
 import com.nextlevelprogrammers.elearns.ui.design.SubjectScreen
+import com.nextlevelprogrammers.elearns.ui.design.VideoPlayerScreen
 import com.nextlevelprogrammers.elearns.ui.theme.ELearnTheme
+import com.nextlevelprogrammers.elearns.viewmodel.ContentViewModel
+import com.nextlevelprogrammers.elearns.viewmodel.CourseViewModel
+import com.nextlevelprogrammers.elearns.viewmodel.SectionViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.nio.charset.StandardCharsets
 
 class MainActivity : ComponentActivity() {
 
@@ -71,6 +85,65 @@ class MainActivity : ComponentActivity() {
                     composable("subject_screen/{categoryName}") { backStackEntry ->
                         val categoryName = backStackEntry.arguments?.getString("categoryName") ?: "Unknown"
                         SubjectScreen(navController, categoryName)
+                    }
+                    composable("sectionScreen/{courseId}") { backStackEntry ->
+                        val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
+
+                        val apiService = remember { ApiService() }
+                        val repository = remember { SectionRepository(apiService) }
+                        val viewModel = remember { SectionViewModel(repository) }
+
+                        val sections by viewModel.sections.collectAsState()
+
+                        LaunchedEffect(Unit) {
+                            viewModel.getSections(courseId)
+                        }
+
+                        if (sections.isEmpty()) {
+                            CircularProgressIndicator()
+                        } else {
+                            SectionScreen(navController, sections)
+                        }
+                    }
+                    composable("contentScreen/{courseId}/{sectionId}") { backStackEntry ->
+                        val courseId = backStackEntry.arguments?.getString("courseId") ?: ""
+                        val sectionId = backStackEntry.arguments?.getString("sectionId") ?: ""
+
+                        val apiService = remember { ApiService() }
+                        val repository = remember { ContentRepository(apiService) }
+                        val viewModel = remember { ContentViewModel(repository) }
+
+                        val contents by viewModel.contents.collectAsState()
+
+                        LaunchedEffect(Unit) {
+                            viewModel.getSectionDetail(courseId, sectionId)
+                        }
+
+                        if (contents.isEmpty()) {
+                            CircularProgressIndicator()
+                        } else {
+                            ContentScreen(navController, contents)
+                        }
+                    }
+                    composable("videoPlayerScreen") { backStackEntry ->
+                        val fullHdUrl = navController.previousBackStackEntry?.savedStateHandle?.get<String>("fullHdUrl") ?: ""
+                        val hdUrl = navController.previousBackStackEntry?.savedStateHandle?.get<String>("hdUrl") ?: ""
+                        val sdUrl = navController.previousBackStackEntry?.savedStateHandle?.get<String>("sdUrl") ?: ""
+
+                        Log.d("VideoPlayerScreen", "Received FullHD=$fullHdUrl HD=$hdUrl SD=$sdUrl")
+
+                        VideoPlayerScreen(
+                            videoQualities = mapOf(
+                                "Full HD" to fullHdUrl,
+                                "HD" to hdUrl,
+                                "SD" to sdUrl
+                            ),
+                            nextVideos = List {  }
+                        )
+                    }
+                    composable("pdfViewerScreen/{pdfUrl}") { backStackEntry ->
+                        val pdfUrl = backStackEntry.arguments?.getString("pdfUrl") ?: ""
+                        PdfViewerScreen(pdfUrl)
                     }
                 }
             }

@@ -3,7 +3,7 @@ package com.nextlevelprogrammers.elearns.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Course(
+data class Courses(
     val course_id: String
 )
 
@@ -15,7 +15,7 @@ data class Category(
     val is_active: Boolean,
     val createdAt: String,
     val updatedAt: String,
-    val courses: List<Course>
+    val courses: List<Courses>
 )
 
 @Serializable
