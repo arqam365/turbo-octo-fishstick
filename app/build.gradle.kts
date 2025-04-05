@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nextlevelprogrammers.elearns"
+    namespace = "com.nextlevelprogrammers.elearn"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.nextlevelprogrammers.elearns"
+        applicationId = "com.nextlevelprogrammers.elearn"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -114,4 +114,5 @@ dependencies {
     implementation ("androidx.compose.runtime:runtime-livedata:1.5.4")
 
     implementation ("io.github.grizzi91:bouquet:1.1.2")
+    implementation ("com.razorpay:checkout:1.6.41")
 }

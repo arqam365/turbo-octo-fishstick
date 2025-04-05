@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "977741295366",
+    "project_id": "iconic-strategy-453807-d1",
+    "storage_bucket": "iconic-strategy-453807-d1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977741295366:android:29f24b2f53737b0fe13887",
+        "android_client_info": {
+          "package_name": "com.nextlevelprogrammers.elearn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "977741295366-vhmuq3ur8tc1dncj3m7errchjls18oh6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nextlevelprogrammers.elearn",
+            "certificate_hash": "252e6c9001b3a4e34ac4c02b5cb42e4e840de522"
+          }
+        },
+        {
+          "client_id": "977741295366-h88ufv9vncvut78opgfb3qpdogkhd9v9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJzina-VTtLdBdrpciugp-U8UPOuCiKp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "977741295366-h88ufv9vncvut78opgfb3qpdogkhd9v9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

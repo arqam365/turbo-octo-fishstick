@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">ELearn</string>
-    <string name="client_id">2102724573-si3i8lroocc5m85pk0b6p00oa03rcnft.apps.googleusercontent.com</string>
+    <string name="client_id">977741295366-h88ufv9vncvut78opgfb3qpdogkhd9v9.apps.googleusercontent.com</string>
+    <string name="razorpay_api_key">rzp_test_a1YIZLXeaxS5Lc</string>
 </resources>
