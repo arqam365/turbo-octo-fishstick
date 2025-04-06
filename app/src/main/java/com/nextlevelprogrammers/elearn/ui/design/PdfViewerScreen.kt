@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -11,6 +12,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
@@ -58,12 +61,29 @@ fun PdfViewerScreen(pdfUrl: String) {
                         contentPadding = PaddingValues(8.dp)
                     ) {
                         items(bitmaps!!.size) { index ->
+                            var scale by remember { mutableStateOf(1f) }
+                            var offsetX by remember { mutableStateOf(0f) }
+                            var offsetY by remember { mutableStateOf(0f) }
+
                             Image(
                                 bitmap = bitmaps!![index].asImageBitmap(),
                                 contentDescription = "Page ${index + 1}",
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .aspectRatio(bitmaps!![index].width.toFloat() / bitmaps!![index].height)
+                                    .graphicsLayer(
+                                        scaleX = scale,
+                                        scaleY = scale,
+                                        translationX = offsetX,
+                                        translationY = offsetY
+                                    )
+                                    .pointerInput(Unit) {
+                                        detectTransformGestures { _, pan, zoom, _ ->
+                                            scale = (scale * zoom).coerceIn(1f, 5f)
+                                            offsetX += pan.x
+                                            offsetY += pan.y
+                                        }
+                                    }
                             )
                         }
                     }

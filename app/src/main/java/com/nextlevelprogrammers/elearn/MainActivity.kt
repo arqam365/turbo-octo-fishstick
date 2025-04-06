@@ -53,6 +53,7 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var credentialManager: CredentialManager
+    var onRazorpaySuccess: (() -> Unit)? = null
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -309,7 +310,8 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
     fun startRazorpayPayment(
         orderId: String,
         amount: Int,
-        currency: String
+        currency: String,
+        onPaymentSuccess: () -> Unit
     ) {
         val checkout = Checkout()
         val key = getString(R.string.razorpay_api_key)
@@ -331,6 +333,8 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
         } catch (e: Exception) {
             Log.e("Razorpay", "Error starting Razorpay", e)
         }
+
+        this.onRazorpaySuccess = onPaymentSuccess
     }
 
     /** 🔥 Sign Out */
@@ -345,12 +349,12 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
 
     override fun onPaymentSuccess(razorpayPaymentId: String?) {
         Log.d("Razorpay", "✅ Payment Success: $razorpayPaymentId")
-        // TODO: Optional - verify payment via backend
+        onRazorpaySuccess?.invoke()
+        onRazorpaySuccess = null
     }
-
     override fun onPaymentError(code: Int, response: String?) {
         Log.e("Razorpay", "❌ Payment Error [$code]: $response")
-        // TODO: Show error to user
+        onRazorpaySuccess = null
     }
 
     companion object {

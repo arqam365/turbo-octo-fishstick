@@ -80,7 +80,12 @@ fun SubjectScreen(navController: NavController, categoryId: String, userId: Stri
                                             orderId = response.order_id,
                                             amount = response.amount,
                                             currency = "INR",
-
+                                            onPaymentSuccess = {
+                                                // ✅ Re-fetch courses after successful payment
+                                                coroutineScope.launch {
+                                                    viewModel.getCourses(categoryId, userId)
+                                                }
+                                            }
                                         )
                                     } else {
                                         Log.e("ORDER_FAILED", "Order creation failed")

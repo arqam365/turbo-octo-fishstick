@@ -15,19 +15,29 @@ android {
         applicationId = "com.nextlevelprogrammers.elearn"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    signingConfigs {
+        create("release") {
+            storeFile = file(project.property("MYAPP_UPLOAD_STORE_FILE") as String)
+            storePassword = project.property("MYAPP_UPLOAD_STORE_PASSWORD") as String
+            keyAlias = project.property("MYAPP_UPLOAD_KEY_ALIAS") as String
+            keyPassword = project.property("MYAPP_UPLOAD_KEY_PASSWORD") as String
+        }
+    }
+
 
     buildTypes {
-        release {
+        getByName("release") {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release") // ✅ Add this
         }
     }
     compileOptions {

@@ -8,6 +8,8 @@ import com.nextlevelprogrammers.elearn.model.ContentResponse
 import com.nextlevelprogrammers.elearn.model.CourseResponse
 import com.nextlevelprogrammers.elearn.model.CreateOrderRequest
 import com.nextlevelprogrammers.elearn.model.CreateOrderResponseWrapper
+import com.nextlevelprogrammers.elearn.model.Order
+import com.nextlevelprogrammers.elearn.model.PurchasedCoursesResponse
 import com.nextlevelprogrammers.elearn.model.RazorpayOrderResponse
 import com.nextlevelprogrammers.elearn.model.SectionResponse
 import io.ktor.client.*
@@ -146,11 +148,12 @@ class ApiService {
         return response.body()
     }
 
-    suspend fun getPurchasedCourses(userId: String): List<RazorpayOrderResponse> {
+    suspend fun getPurchasedCourses(userId: String): List<Order> {
         return try {
             val response: HttpResponse = client.get("$BASE_URL/v1/user/$userId/library/courses")
             if (response.status == HttpStatusCode.OK) {
-                response.body() // Now expects a full list of RazorpayOrderResponse
+                val parsed = response.body<PurchasedCoursesResponse>()
+                parsed.userData.orders
             } else {
                 emptyList()
             }
