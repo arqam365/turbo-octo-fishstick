@@ -43,7 +43,7 @@ class CourseRepository(private val apiService: ApiService) {
     suspend fun createCourseOrder(courseId: String, userId: String): RazorpayOrderResponse? {
         return try {
             val response = apiService.createCourseOrder(courseId, CreateOrderRequest(userId))
-            response.data
+            response.order
         } catch (e: Exception) {
             Log.e("CourseRepository", "Error creating course order: ${e.localizedMessage}")
             null

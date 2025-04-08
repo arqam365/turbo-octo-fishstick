@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CreateOrderResponseWrapper(
     val message: String,
-    val data: RazorpayOrderResponse
+    val order: RazorpayOrderResponse,
+    val status: String
 )

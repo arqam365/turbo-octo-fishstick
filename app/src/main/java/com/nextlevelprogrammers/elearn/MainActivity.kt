@@ -3,6 +3,7 @@ package com.nextlevelprogrammers.elearn
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -353,8 +354,20 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
         onRazorpaySuccess = null
     }
     override fun onPaymentError(code: Int, response: String?) {
-        Log.e("Razorpay", "❌ Payment Error [$code]: $response")
-        onRazorpaySuccess = null
+        try {
+            Log.e("Razorpay", "❌ Payment Error [$code]: $response")
+
+            val description = JSONObject(response ?: "{}")
+                .optJSONObject("error")
+                ?.optString("description", "Payment failed. Please try again.")
+
+            Toast.makeText(this, description, Toast.LENGTH_LONG).show()
+
+            // Optionally show retry or navigate user away
+        } catch (e: Exception) {
+            Log.e("Razorpay", "Exception in onPaymentError: ${e.localizedMessage}")
+            Toast.makeText(this, "Payment failed due to an unexpected error.", Toast.LENGTH_LONG).show()
+        }
     }
 
     companion object {

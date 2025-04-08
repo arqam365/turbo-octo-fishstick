@@ -24,7 +24,7 @@ import kotlinx.serialization.json.Json
 
 class ApiService {
 
-    private val BASE_URL = "https://begoniaorchid-977741295366.asia-south1.run.app"
+    private val BASE_URL = "https://development-begoniaorchid-977741295366.asia-south1.run.app"
 
     private val client = HttpClient(CIO) {
         install(ContentNegotiation) {
