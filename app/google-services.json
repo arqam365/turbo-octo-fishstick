@@ -41,6 +41,43 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:977741295366:android:8866ccf261f6b3d1e13887",
+        "android_client_info": {
+          "package_name": "com.nextlevelprogrammers.elearner"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "977741295366-2jdb2102orohvbhiem5ot5i6jmmpqitf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nextlevelprogrammers.elearner",
+            "certificate_hash": "252e6c9001b3a4e34ac4c02b5cb42e4e840de522"
+          }
+        },
+        {
+          "client_id": "977741295366-h88ufv9vncvut78opgfb3qpdogkhd9v9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJzina-VTtLdBdrpciugp-U8UPOuCiKp8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "977741295366-h88ufv9vncvut78opgfb3qpdogkhd9v9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

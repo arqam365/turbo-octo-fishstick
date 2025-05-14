@@ -8,15 +8,15 @@ plugins {
 }
 
 android {
-    namespace = "com.nextlevelprogrammers.elearn"
+    namespace = "com.nextlevelprogrammers.elearner"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.nextlevelprogrammers.elearn"
+        applicationId = "com.nextlevelprogrammers.elearner"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "3.0"
+        versionCode = project.findProperty("VERSION_CODE")?.toString()?.toInt() ?: 3
+        versionName = project.findProperty("VERSION_NAME")?.toString() ?: "1.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -72,6 +72,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation ("tools.fastlane:screengrab:2.1.1")
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     // Firebase BoM (Bill of Materials) - Automatically manages Firebase versions
