@@ -6,4 +6,5 @@ object Routes {
     const val CART_SCREEN = "cart_screen"
     const val PROFILE_SCREEN = "profileScreen"
     const val LIBRARY_SCREEN = "library_screen"
+    const val YOUTUBE_PLAYER="youtubeplayerscreen"
 }

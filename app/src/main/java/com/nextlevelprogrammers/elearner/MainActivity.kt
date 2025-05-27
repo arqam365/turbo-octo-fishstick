@@ -30,6 +30,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
@@ -49,6 +50,7 @@ import com.nextlevelprogrammers.elearner.ui.design.PdfViewerScreen
 import com.nextlevelprogrammers.elearner.ui.design.SectionScreen
 import com.nextlevelprogrammers.elearner.ui.design.SubjectScreen
 import com.nextlevelprogrammers.elearner.ui.design.VideoPlayerScreen
+import com.nextlevelprogrammers.elearner.ui.design.YouTubeLivePlayer
 import com.nextlevelprogrammers.elearner.ui.theme.ELearnTheme
 import com.nextlevelprogrammers.elearner.viewmodel.ContentViewModel
 import com.nextlevelprogrammers.elearner.viewmodel.CourseViewModel
@@ -225,6 +227,19 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
                             // Show fallback if not logged in
                         }
                     }
+
+
+                    //Navigation Route For Composable Screen
+                    //Also don't write initialization codes in nav graph it causes data leaks.
+
+                    composable(
+                        route = Routes.YOUTUBE_PLAYER + "?videoId={videoId}",
+                        arguments = listOf(navArgument("videoId") { defaultValue = "" })
+                    ) { backStackEntry ->
+                        val videoId = backStackEntry.arguments?.getString("videoId") ?: ""
+                        YouTubeLivePlayer(videoId = videoId, navController = navController)
+                    }
+                    //Make Sure to Check For the nullability and empty string before calling navController
                 }
             }
         }
