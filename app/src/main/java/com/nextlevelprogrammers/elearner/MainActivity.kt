@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -77,6 +78,12 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
         credentialManager = CredentialManager.create(this)
         val clientId = getString(R.string.client_id)
         val razorpayKey = getString(R.string.razorpay_api_key)
+
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
+
 
         setContent {
             ELearnTheme {

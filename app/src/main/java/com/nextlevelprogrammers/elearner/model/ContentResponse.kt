@@ -36,6 +36,7 @@ data class ContentItem(
     val hd_video_gs_bucket_uri: String? = null,
     val sd_video_uri: String? = null,
     val sd_video_gs_bucket_uri: String? = null,
+    val live_video_id: String? = null,
     val is_published: Boolean? = null,
     val createdAt: String,
     val updatedAt: String

@@ -84,7 +84,7 @@ fun GetStartedScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Demo Login Button
+            // Demo Login Button for developers only and testing purpose
             Button(
                 onClick = {
                     onDemoSignInClick("testuser365.tu@gmail.com", "testuser365.")
