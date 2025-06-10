@@ -63,7 +63,7 @@ fun PdfViewerScreen(pdfUrl: String) {
     LaunchedEffect(Unit) {
         val pdfFile = File(context.cacheDir, "downloaded.pdf")
         try {
-           pdfUri= downloadPdfFromUrl(pdfUrl, pdfFile,context)
+            pdfUri= downloadPdfFromUrl(pdfUrl, pdfFile,context)
         }
         catch (e: IOException)
         {
@@ -184,7 +184,7 @@ fun BottomBar(
         Icon(imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Previous",
             tint = MaterialTheme.colorScheme.onSurface,
             modifier=Modifier.size(28.dp).clickable{onPrev()
-            resetScale()})
+                resetScale()})
 
 
         Text("${page+1}/$total_pages", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
@@ -193,7 +193,7 @@ fun BottomBar(
         Icon(imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Next",
             tint = MaterialTheme.colorScheme.onSurface,
             modifier=Modifier.size(28.dp).clickable { onNext()
-            resetScale()})
+                resetScale()})
     }
 }
 

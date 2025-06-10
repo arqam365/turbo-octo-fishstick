@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets
 @Composable
 fun ContentScreen(navController: NavController, contentList: List<ContentItem>) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("Videos", "PDFs","Live") //Here I added the extra Section
+    val tabs = listOf("Videos", "PDFs", "Live")
 
     Scaffold(
         topBar = {
@@ -37,7 +37,6 @@ fun ContentScreen(navController: NavController, contentList: List<ContentItem>) 
                 .fillMaxSize()
         ) {
 
-            // Tab Row
             TabRow(selectedTabIndex = selectedTabIndex) {
                 tabs.forEachIndexed { index, title ->
                     Tab(
@@ -50,30 +49,12 @@ fun ContentScreen(navController: NavController, contentList: List<ContentItem>) 
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Filter content based on selected tab
             val filteredContent = when (selectedTabIndex) {
                 0 -> contentList.filter { it.content_type.lowercase() == "video" }
                 1 -> contentList.filter { it.content_type.lowercase() == "pdf" }
-                2-> listOf(ContentItem(content_id = "Wfxd12hNy_E",
-                    section_id = "",
-                    content_name = "Live Video",
-                    content_description = "Playing Live Video",
-                    content_index = 1,
-                    content_type = "live",
-                    pdf_uri = "",
-                    pdf_gs_bucket_uri = "",
-                    full_hd_video_uri = null,
-                    full_hd_video_gs_bucket_uri = null,
-                    hd_video_uri = null,
-                    hd_video_gs_bucket_uri = null,
-                    sd_video_uri = null,
-                    sd_video_gs_bucket_uri = null,
-                    is_published = true,
-                    createdAt = "",
-                    updatedAt = ""))
+                2 -> contentList.filter { it.content_type.lowercase() == "live_video" }
                 else -> emptyList()
             }
-            //The second index is for live and i had made a mock object but when working will real object make sure to update where i used videoId parameter
 
             if (filteredContent.isEmpty()) {
                 Box(
@@ -100,22 +81,24 @@ fun ContentItemView(navController: NavController, content: ContentItem, contentL
             .fillMaxWidth()
             .padding(8.dp)
             .clickable {
-                if (content.content_type.lowercase() == "video") {
-                    val videoList = contentList.filter { it.content_type.lowercase() == "video" }
-                    navController.currentBackStackEntry?.savedStateHandle?.apply {
-                        set("fullHdUrl", content.full_hd_video_uri ?: "")
-                        set("hdUrl", content.hd_video_uri ?: "")
-                        set("sdUrl", content.sd_video_uri ?: "")
-                        set("nextVideos", videoList)
+                when (content.content_type.lowercase()) {
+                    "video" -> {
+                        val videoList = contentList.filter { it.content_type.lowercase() == "video" }
+                        navController.currentBackStackEntry?.savedStateHandle?.apply {
+                            set("fullHdUrl", content.full_hd_video_uri ?: "")
+                            set("hdUrl", content.hd_video_uri ?: "")
+                            set("sdUrl", content.sd_video_uri ?: "")
+                            set("nextVideos", videoList)
+                        }
+                        navController.navigate("videoPlayerScreen")
                     }
-                    navController.navigate("videoPlayerScreen")
-                } else if (content.content_type.lowercase() == "pdf") {
-                    val encodedPdfUrl = URLEncoder.encode(content.pdf_uri ?: "", StandardCharsets.UTF_8.toString())
-                    navController.navigate("pdfViewerScreen/$encodedPdfUrl")
-                }
-                else if (content.content_type.lowercase() == "live"){
-                    //here i am using content_id to store the live stream code in ContentItem data class object but you will replace it with the parameter where you will store your video id
-                    navController.navigate("${Routes.YOUTUBE_PLAYER}?videoId=${content.content_id}")
+                    "pdf" -> {
+                        val encodedPdfUrl = URLEncoder.encode(content.pdf_uri ?: "", StandardCharsets.UTF_8.toString())
+                        navController.navigate("pdfViewerScreen/$encodedPdfUrl")
+                    }
+                    "live_video" -> {
+                        navController.navigate("${Routes.YOUTUBE_PLAYER}?videoId=${content.live_video_id}")
+                    }
                 }
             }
     ) {

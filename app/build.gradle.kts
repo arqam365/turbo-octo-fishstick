@@ -15,8 +15,8 @@ android {
         applicationId = "com.nextlevelprogrammers.elearner"
         minSdk = 24
         targetSdk = 35
-        versionCode = project.findProperty("VERSION_CODE")?.toString()?.toInt() ?: 3
-        versionName = project.findProperty("VERSION_NAME")?.toString() ?: "1.0.2"
+        versionCode = project.findProperty("VERSION_CODE")?.toString()?.toInt() ?: 6
+        versionName = project.findProperty("VERSION_NAME")?.toString() ?: "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -37,7 +37,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release") // ✅ Add this
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

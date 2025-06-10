@@ -36,13 +36,13 @@ import com.nextlevelprogrammers.elearner.data.remote.ApiService
 import com.nextlevelprogrammers.elearner.data.repository.CourseRepository
 import com.nextlevelprogrammers.elearner.viewmodel.CategoryViewModel
 import com.nextlevelprogrammers.elearner.viewmodel.CourseViewModel
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(navController: NavHostController) {
-
     val navBackStackEntry = navController.currentBackStackEntryAsState().value
     val currentRoute = navBackStackEntry?.destination?.route ?: ""
 
@@ -62,6 +62,10 @@ fun MainScreen(navController: NavHostController) {
     val userId = FirebaseAuth.getInstance().currentUser?.uid
     val currentUser = FirebaseAuth.getInstance().currentUser
     val profilePhotoUrl = currentUser?.photoUrl?.toString()
+    val displayName = currentUser?.displayName ?: "Learner"
+
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         userId?.let {
@@ -69,89 +73,156 @@ fun MainScreen(navController: NavHostController) {
         }
     }
 
-    Scaffold(
-        bottomBar = { BottomNavigationBar(navController, currentRoute) }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding) 
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
-        ) {
-            // 🔹 Top Bar with Profile and Icons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            Surface(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(280.dp)
+                    .background(MaterialTheme.colorScheme.surface),
+                tonalElevation = 4.dp
             ) {
-                ProfileBadge(imageUrl = profilePhotoUrl.toString())
-
-                Row {
-                    IconButton(onClick = { /* TODO: Handle Search Click */ }) {
-                        Icon(Icons.Default.Search, contentDescription = "Search")
-                    }
-                    IconButton(onClick = { /* TODO: Handle Menu Click */ }) {
-                        Icon(Icons.Default.Menu, contentDescription = "Menu")
-                    }
-                }
+                DrawerContent(navController)
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 🔹 Title
-            Text(text = "Let's learn", fontSize = 24.sp)
-            Text(text = "something new", fontSize = 28.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 🔹 Learning Categories
-            LearningCategories(navController = navController)
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // 🔹 User Library Section (Purchased Courses)
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Your Library",
-                    fontSize = 20.sp,
-                    fontWeight = androidx.compose.ui.text.font.FontWeight.Bold
-                )
-                Text(
-                    text = "View All",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.clickable { navController.navigate(Routes.LIBRARY_SCREEN)  }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Example: Purchased Course Card
+        }
+    ) {
+        Scaffold(
+            bottomBar = { BottomNavigationBar(navController, currentRoute) }
+        ) { innerPadding ->
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
+                    .fillMaxSize()
+                    .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
+                    .padding(horizontal = 16.dp)
             ) {
-                purchasedCourses.forEach { course ->
-                    PurchasedCourseCard(
-                        imageUrl = course.head_img,
-                        courseTitle = course.course_name
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ProfileBadge(imageUrl = profilePhotoUrl.toString())
+                        Spacer(modifier = Modifier.width(5.dp))
+                        Text(
+                            text = displayName,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Light,
+                                letterSpacing = 0.15.sp
+                            ),
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                    }
+                    Row {
+                        IconButton(onClick = { /* TODO: Handle Search Click */ }) {
+                            Icon(Icons.Default.Search, contentDescription = "Search")
+                        }
+                        IconButton(onClick = {
+                            coroutineScope.launch { drawerState.open() }
+                        }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "Let's learn", fontSize = 24.sp)
+                Text(text = "something new", fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                Spacer(modifier = Modifier.height(16.dp))
+                LearningCategories(navController = navController)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Your Library",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "View All",
+                        fontSize = 14.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.clickable { navController.navigate(Routes.LIBRARY_SCREEN) }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding())
+                ) {
+                    purchasedCourses.forEach { course ->
+                        PurchasedCourseCard(
+                            imageUrl = course.head_img,
+                            courseTitle = course.course_name
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                 }
             }
         }
     }
 }
 
-// 🔹 Profile Image Badge
+@Composable
+fun DrawerContent(navController: NavController) {
+    val auth = FirebaseAuth.getInstance()
+    Column(
+        modifier = Modifier
+            .fillMaxHeight()
+            .padding(top = 32.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ){
+        Column {
+            Text("Menu", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Home", modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate(Routes.HOME_SCREEN) }
+                .padding(vertical = 8.dp))
+            Text("Library", modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate(Routes.LIBRARY_SCREEN) }
+                .padding(vertical = 8.dp))
+            Text("Profile", modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate(Routes.PROFILE_SCREEN) }
+                .padding(vertical = 8.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+            Divider()
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("About Us", modifier = Modifier
+                .fillMaxWidth()
+                .clickable { /* Navigate to About Us */ }
+                .padding(vertical = 8.dp))
+            Text("Contact Us", modifier = Modifier
+                .fillMaxWidth()
+                .clickable { /* Navigate to Contact Us */ }
+                .padding(vertical = 8.dp))
+        }
+        Button(
+            onClick = {
+                auth.signOut()
+                navController.navigate(Routes.GET_STARTED) {
+                    popUpTo(0)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text("Log Out")
+        }
+    }
+}
+
 @Composable
 fun ProfileBadge(imageUrl: String) {
     AsyncImage(
@@ -200,8 +271,7 @@ fun getRandomCategoryColor(): Color {
         Color(0xFF64B5F6),
         Color(0xFFFFB74D),
         Color(0xFFBA68C8),
-        Color(0xFFFF8A65),
-        Color(0xFFA1887F)
+        Color(0xFFFF8A65)
     )
     return colors[Random.nextInt(colors.size)]
 }
