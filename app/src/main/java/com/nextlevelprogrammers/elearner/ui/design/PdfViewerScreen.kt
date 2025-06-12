@@ -3,34 +3,48 @@ package com.nextlevelprogrammers.elearner.ui.design
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberTransformableState
 import androidx.compose.foundation.gestures.transformable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -42,31 +56,30 @@ import java.net.URL
 @Composable
 fun PdfViewerScreen(pdfUrl: String) {
     val context = LocalContext.current
-    val pdfBitmapConverter = remember {
-        PdfBitmapConverter(context)
-    }
-    var renderedPages by remember {
-        mutableStateOf<List<Bitmap>>(emptyList())
-    }
-    var pdfUri by remember {
-        mutableStateOf<Uri?>(null)
-    }
+    val pdfBitmapConverter = remember { PdfBitmapConverter(context) }
+    var renderedPages by remember { mutableStateOf<List<Bitmap>>(emptyList()) }
+    var pdfUri by remember { mutableStateOf<Uri?>(null) }
 
+    var page by remember { mutableIntStateOf(0) }
+    var scale by remember { mutableFloatStateOf(1f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
+
+    fun resetScale() {
+        scale = 1f
+        offset = Offset.Zero
+    }
 
     LaunchedEffect(pdfUri) {
-        Log.d("PDFURI", pdfUri.toString())
-        pdfUri?.let { uri ->
-            renderedPages=pdfBitmapConverter.pdfToBitmaps(pdfUri!!)
+        pdfUri?.let {
+            renderedPages = pdfBitmapConverter.pdfToBitmaps(it)
         }
     }
 
     LaunchedEffect(Unit) {
         val pdfFile = File(context.cacheDir, "downloaded.pdf")
         try {
-            pdfUri= downloadPdfFromUrl(pdfUrl, pdfFile,context)
-        }
-        catch (e: IOException)
-        {
+            pdfUri = downloadPdfFromUrl(pdfUrl, pdfFile, context)
+        } catch (e: IOException) {
             e.printStackTrace()
         }
     }
@@ -77,89 +90,72 @@ fun PdfViewerScreen(pdfUrl: String) {
                 title = { Text("PDF Viewer") },
                 modifier = Modifier.shadow(1.dp)
             )
-        }
-    ) { paddingValues ->
-
-        val pad=paddingValues
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        )
-        {
-            if (pdfUri==null){
-                CircularProgressIndicator()
-            }
-            else{
-                if (renderedPages.isEmpty()){
-                    CircularProgressIndicator()
-                }
-                else {
-                    PdfScreen(renderedPages, modifier = Modifier)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun PdfScreen(renderedPages: List<Bitmap>, modifier: Modifier){
-    var page by remember { mutableIntStateOf(0) }
-    Column(modifier=modifier.fillMaxSize()){
-        var scale by remember { mutableFloatStateOf(1f) }
-        var offSet by remember { mutableStateOf(Offset.Zero) }
-        BoxWithConstraints(modifier = modifier.weight(1f), contentAlignment = Alignment.Center)
-        {
-            val width = with(LocalDensity.current) { maxWidth.toPx() }
-            val height = with(LocalDensity.current) { maxHeight.toPx() }
-
-            val state = rememberTransformableState { zoomChange, offsetChange, _ ->
-                scale = (scale * zoomChange).coerceIn(1f, 5f)
-
-                val extraWidth=(scale-1)*width
-                val extraHeight=(scale-1)*height
-
-                val maxX=extraWidth/2
-                val maxy=extraHeight/2
-
-                offSet=Offset(
-                    x=(offSet.x+ scale*offsetChange.x).coerceIn(-maxX,maxX),
-                    y=(offSet.y+ scale*offsetChange.y).coerceIn(-maxy,maxy)
+        },
+        bottomBar = {
+            if (renderedPages.isNotEmpty()) {
+                BottomBar(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .navigationBarsPadding(), // <- crucial for bottom safe area
+                    onNext = { if (page < renderedPages.lastIndex) page++ else page = 0 },
+                    onPrev = { if (page > 0) page-- else page = renderedPages.lastIndex },
+                    page = page,
+                    total_pages = renderedPages.size,
+                    resetScale = { resetScale() }
                 )
             }
-
-            Image(
-                bitmap = renderedPages[page].asImageBitmap(),
-                contentDescription = null,
-                modifier = modifier
-                    .fillMaxWidth()
-                    .aspectRatio(renderedPages[page].width.toFloat() / renderedPages[page].height.toFloat())
-                    .drawWithContent {
-                        drawContent()
-                    }
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        translationX = offSet.x
-                        translationY = offSet.y
-                    }
-                    .transformable(state = state)
-            )
-
         }
-        Box(modifier = modifier.fillMaxWidth()) {
-            BottomBar(
-                modifier = modifier,
-                onNext = { if (page < renderedPages.size - 1) page++ else page = 0 },
-                onPrev = { if (page > 0) page-- else page = renderedPages.size - 1 },
-                page = page,
-                resetScale={
-                    scale=1f
-                    offSet=Offset.Zero
-                },
-                total_pages = renderedPages.size
-            )
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                pdfUri == null -> CircularProgressIndicator()
+                renderedPages.isEmpty() -> CircularProgressIndicator()
+                else -> {
+                    val currentPage = renderedPages[page]
+                    val transformState = rememberTransformableState { zoomChange, offsetChange, _ ->
+                        val width = currentPage.width.toFloat()
+                        val height = currentPage.height.toFloat()
+                        scale = (scale * zoomChange).coerceIn(1f, 5f)
+                        val extraWidth = (scale - 1) * width
+                        val extraHeight = (scale - 1) * height
+                        val maxX = extraWidth / 2
+                        val maxY = extraHeight / 2
+                        offset = Offset(
+                            x = (offset.x + scale * offsetChange.x).coerceIn(-maxX, maxX),
+                            y = (offset.y + scale * offsetChange.y).coerceIn(-maxY, maxY)
+                        )
+                    }
+
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                bitmap = currentPage.asImageBitmap(),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(currentPage.width.toFloat() / currentPage.height.toFloat())
+                                    .graphicsLayer {
+                                        scaleX = scale
+                                        scaleY = scale
+                                        translationX = offset.x
+                                        translationY = offset.y
+                                    }
+                                    .transformable(state = transformState)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
