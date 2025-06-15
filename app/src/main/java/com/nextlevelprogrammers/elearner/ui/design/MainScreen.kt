@@ -201,11 +201,15 @@ fun DrawerContent(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
             Text("About Us", modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* Navigate to About Us */ }
+                .clickable { navController.navigate(Routes.ABOUT_US_SCREEN) }
                 .padding(vertical = 8.dp))
             Text("Contact Us", modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* Navigate to Contact Us */ }
+                .clickable { navController.navigate(Routes.CONTACT_US_SCREEN) }
+                .padding(vertical = 8.dp))
+            Text("Terms & Conditions", modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate(Routes.TNC_SCREEN) }
                 .padding(vertical = 8.dp))
         }
         Button(
