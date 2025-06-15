@@ -42,7 +42,9 @@ import com.nextlevelprogrammers.elearner.data.repository.CourseRepository
 import com.nextlevelprogrammers.elearner.data.repository.SectionRepository
 import com.nextlevelprogrammers.elearner.model.AuthRequest
 import com.nextlevelprogrammers.elearner.model.ContentItem
+import com.nextlevelprogrammers.elearner.ui.design.AboutUsScreen
 import com.nextlevelprogrammers.elearner.ui.design.CartScreen
+import com.nextlevelprogrammers.elearner.ui.design.ContactUsScreen
 import com.nextlevelprogrammers.elearner.ui.design.ContentScreen
 import com.nextlevelprogrammers.elearner.ui.design.GetStartedScreen
 import com.nextlevelprogrammers.elearner.ui.design.LibraryScreen
@@ -247,6 +249,14 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
                         YouTubeLivePlayer(videoId = videoId, navController = navController)
                     }
                     //Make Sure to Check For the nullability and empty string before calling navController
+
+                    composable(Routes.ABOUT_US_SCREEN) {
+                        AboutUsScreen()
+                    }
+
+                    composable(Routes.CONTACT_US_SCREEN) {
+                        ContactUsScreen()
+                    }
                 }
             }
         }

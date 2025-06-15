@@ -96,7 +96,7 @@ fun PdfViewerScreen(pdfUrl: String) {
                 BottomBar(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .navigationBarsPadding(), // <- crucial for bottom safe area
+                        .navigationBarsPadding(),
                     onNext = { if (page < renderedPages.lastIndex) page++ else page = 0 },
                     onPrev = { if (page > 0) page-- else page = renderedPages.lastIndex },
                     page = page,
