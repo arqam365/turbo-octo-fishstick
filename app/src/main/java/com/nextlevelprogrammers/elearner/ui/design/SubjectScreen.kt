@@ -45,68 +45,77 @@ fun SubjectScreen(navController: NavController, categoryId: String, userId: Stri
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center){
             if (courses.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
                     CircularProgressIndicator()
-                }
-            } else {
-                CourseList(
-                    courses,
-                    onCourseClick = { course ->
-                        navController.navigate("sectionScreen/${course.course_id}")
-                    },
-                    onBuyClick = { course ->
-                        selectedCourse = course
-                    }
-                )
+            }
+            else {
+            Column(modifier = Modifier.fillMaxSize()) {
 
-                selectedCourse?.let { course ->
-                    AlertDialog(
-                        onDismissRequest = { selectedCourse = null },
-                        title = { Text("Purchase Course") },
-                        text = { Text("To access \"${course.course_name}\", please purchase it.") },
-                        confirmButton = {
-                            TextButton(onClick = {
-                                coroutineScope.launch {
-                                    // Log that we are initiating order creation
-                                    Log.d("DEBUG_ORDER", "Initiating order creation for courseId: ${course.course_id} and userId: $userId")
-
-                                    val response = repository.createCourseOrder(course.course_id, userId)
-                                    if (response != null) {
-                                        Log.d("DEBUG_ORDER", "Order created successfully: orderId=${response.order_id}, amount=${response.amount}")
-
-                                        // Launch Razorpay payment with the order details, and log the payment start
-                                        activity?.startRazorpayPayment(
-                                            orderId = response.order_id,
-                                            amount = response.amount,
-                                            currency = "INR",
-                                            onPaymentSuccess = {
-                                                Log.d("DEBUG_PAYMENT", "Payment success for orderId: ${response.order_id}")
-                                                // Re-fetch courses after successful payment
-                                                coroutineScope.launch {
-                                                    viewModel.getCourses(categoryId, userId)
-                                                }
-                                            }
-                                        )
-                                    } else {
-                                        Log.e("DEBUG_ORDER", "Order creation failed")
-                                    }
-                                    selectedCourse = null
-                                }
-                            }) {
-                                Text("Buy Now")
-                            }
+                    CourseList(
+                        courses,
+                        onCourseClick = { course ->
+                            navController.navigate("sectionScreen/${course.course_id}")
                         },
-                        dismissButton = {
-                            TextButton(onClick = { selectedCourse = null }) {
-                                Text("Cancel")
-                            }
+                        onBuyClick = { course ->
+                            selectedCourse = course
                         }
                     )
+
+                    selectedCourse?.let { course ->
+                        AlertDialog(
+                            onDismissRequest = { selectedCourse = null },
+                            title = { Text("Purchase Course") },
+                            text = { Text("To access \"${course.course_name}\", please purchase it.") },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    coroutineScope.launch {
+                                        // Log that we are initiating order creation
+                                        Log.d(
+                                            "DEBUG_ORDER",
+                                            "Initiating order creation for courseId: ${course.course_id} and userId: $userId"
+                                        )
+
+                                        val response =
+                                            repository.createCourseOrder(course.course_id, userId)
+                                        if (response != null) {
+                                            Log.d(
+                                                "DEBUG_ORDER",
+                                                "Order created successfully: orderId=${response.order_id}, amount=${response.amount}"
+                                            )
+
+                                            // Launch Razorpay payment with the order details, and log the payment start
+                                            activity?.startRazorpayPayment(
+                                                orderId = response.order_id,
+                                                amount = response.amount,
+                                                currency = "INR",
+                                                onPaymentSuccess = {
+                                                    Log.d(
+                                                        "DEBUG_PAYMENT",
+                                                        "Payment success for orderId: ${response.order_id}"
+                                                    )
+                                                    // Re-fetch courses after successful payment
+                                                    coroutineScope.launch {
+                                                        viewModel.getCourses(categoryId, userId)
+                                                    }
+                                                }
+                                            )
+                                        } else {
+                                            Log.e("DEBUG_ORDER", "Order creation failed")
+                                        }
+                                        selectedCourse = null
+                                    }
+                                }) {
+                                    Text("Buy Now")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { selectedCourse = null }) {
+                                    Text("Cancel")
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }

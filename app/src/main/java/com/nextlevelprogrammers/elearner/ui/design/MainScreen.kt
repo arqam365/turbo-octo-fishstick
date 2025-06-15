@@ -98,7 +98,7 @@ fun MainScreen(navController: NavHostController) {
                     .padding(horizontal = 16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -235,6 +235,7 @@ fun ProfileBadge(imageUrl: String) {
         contentScale = ContentScale.Crop,
         modifier = Modifier
             .size(48.dp)
+            .padding(4.dp)
             .clip(CircleShape)
     )
 }
@@ -243,7 +244,8 @@ fun ProfileBadge(imageUrl: String) {
 @Composable
 fun LearningCategories(navController: NavController, viewModel: CategoryViewModel = viewModel()) {
     val categories by viewModel.categories.collectAsState()
-
+    val cardColors = listOf(Color(0xFF81C784), Color(0xFF64B5F6), Color(0xFFFFB74D), Color(0xFFBA68C8), Color(0xFFFF8A65))
+    var colorIndex=0
     Column {
         for (i in categories.chunked(2)) {
             Row(
@@ -255,7 +257,8 @@ fun LearningCategories(navController: NavController, viewModel: CategoryViewMode
                         title = category.category_name,
                         categoryId = category.category_id,
                         modifier = Modifier.weight(1f),
-                        navController = navController
+                        navController = navController,
+                        color=cardColors[colorIndex++]
                     )
 
                     // 🔹 Add spacing except for the last item
@@ -282,14 +285,20 @@ fun getRandomCategoryColor(): Color {
 
 // 🔹 Single Category Card
 @Composable
-fun CategoryCard(title: String, categoryId: String, modifier: Modifier, navController: NavController) {
+fun CategoryCard(
+    title: String,
+    categoryId: String,
+    modifier: Modifier,
+    navController: NavController,
+    color: Color
+) {
     val backgroundColor = remember { getRandomCategoryColor() }
 
     Box(
         modifier = modifier
             .height(100.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(backgroundColor)
+            .background(color)
             .clickable {
                 val userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
                 navController.navigate("subject_screen/$categoryId/$userId")
