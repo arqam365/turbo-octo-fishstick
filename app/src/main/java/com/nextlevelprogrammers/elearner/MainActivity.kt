@@ -52,6 +52,7 @@ import com.nextlevelprogrammers.elearner.ui.design.MainScreen
 import com.nextlevelprogrammers.elearner.ui.design.PdfViewerScreen
 import com.nextlevelprogrammers.elearner.ui.design.SectionScreen
 import com.nextlevelprogrammers.elearner.ui.design.SubjectScreen
+import com.nextlevelprogrammers.elearner.ui.design.TncScreen
 import com.nextlevelprogrammers.elearner.ui.design.VideoPlayerScreen
 import com.nextlevelprogrammers.elearner.ui.design.YouTubeLivePlayer
 import com.nextlevelprogrammers.elearner.ui.theme.ELearnTheme
@@ -256,6 +257,10 @@ class MainActivity : ComponentActivity(), PaymentResultListener {
 
                     composable(Routes.CONTACT_US_SCREEN) {
                         ContactUsScreen()
+                    }
+
+                    composable(Routes.TNC_SCREEN) {
+                        TncScreen()
                     }
                 }
             }

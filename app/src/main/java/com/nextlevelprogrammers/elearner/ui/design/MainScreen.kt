@@ -207,6 +207,10 @@ fun DrawerContent(navController: NavController) {
                 .fillMaxWidth()
                 .clickable { navController.navigate(Routes.CONTACT_US_SCREEN) }
                 .padding(vertical = 8.dp))
+            Text("Terms & Conditions", modifier = Modifier
+                .fillMaxWidth()
+                .clickable { navController.navigate(Routes.TNC_SCREEN) }
+                .padding(vertical = 8.dp))
         }
         Button(
             onClick = {

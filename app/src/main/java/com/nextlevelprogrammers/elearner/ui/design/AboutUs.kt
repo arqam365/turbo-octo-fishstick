@@ -27,21 +27,21 @@ fun AboutUsScreen() {
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            SectionTitle("About Us – CHEMISTRY POINT NK")
+            AboutSectionTitle("About Us – CHEMISTRY POINT NK")
 
-            Section("Who We Are", listOf(
+            AboutSection("Who We Are", listOf(
                 "CHEMISTRY POINT NK is a premier educational institute focused on academic and competitive excellence.",
                 "We provide complete subject coaching for Classes 9 to 12.",
                 "Over 3000+ students have already trusted us in their academic journey."
             ))
 
-            Section("Our Journey", listOf(
+            AboutSection("Our Journey", listOf(
                 "2010 – Started as a passionate initiative to guide students in science and academics.",
                 "2020 – Established as a full-fledged institute: CHEMISTRY POINT NK.",
                 "Proud to have helped 500+ students successfully pursue their passion through our programs."
             ))
 
-            Section("What We Offer", listOf(
+            AboutSection("What We Offer", listOf(
                 "Classes 9 to 12 – Full syllabus coaching (CBSE & State Boards).",
                 "Subjects Offered: Physics, Chemistry, Biology, Mathematics, English, Social Science & more.",
                 "Competitive Exams:",
@@ -50,7 +50,7 @@ fun AboutUsScreen() {
                 "• NTSE, Olympiads, and foundation courses for younger students."
             ))
 
-            Section("Our Teaching Approach", listOf(
+            AboutSection("Our Teaching Approach", listOf(
                 "Smart digital boards in all classrooms.",
                 "Live online classes with real-time interaction.",
                 "Doubt-clearing sessions in every class.",
@@ -60,19 +60,19 @@ fun AboutUsScreen() {
                 "Focused improvement strategies for each student."
             ))
 
-            Section("Support System", listOf(
+            AboutSection("Support System", listOf(
                 "24x7 Doubt Resolution – Submit queries anytime.",
                 "One-on-One Mentorship – Personalized academic guidance.",
                 "Parent Connect – Monthly progress reports and performance discussions."
             ))
 
-            Section("Access & Learning Tools", listOf(
+            AboutSection("Access & Learning Tools", listOf(
                 "Fully supported via our mobile app.",
                 "Class recordings available for revision.",
                 "PDF notes and printed material shared regularly for all subjects."
             ))
 
-            Section("Our Achievements", listOf(
+            AboutSection("Our Achievements", listOf(
                 "3000+ students trained and mentored.",
                 "500+ students successfully pursued their dreams and passions through our institute.",
                 "Consistent track record of board exam toppers and high-performing students."
@@ -89,7 +89,7 @@ fun AboutUsScreen() {
 }
 
 @Composable
-private fun SectionTitle(title: String) {
+private fun AboutSectionTitle(title: String) {
     Text(
         text = title,
         fontSize = 22.sp,
@@ -102,7 +102,7 @@ private fun SectionTitle(title: String) {
 }
 
 @Composable
-private fun Section(header: String, items: List<String>) {
+private fun AboutSection(header: String, items: List<String>) {
     Text(
         text = header,
         fontSize = 18.sp,
